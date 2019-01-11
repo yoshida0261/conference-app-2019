@@ -10,7 +10,6 @@ dependencies {
     implementation Dep.Kotlin.stdlibJvm
 
     api Dep.Dagger.androidSupport
-    implementation Dep.Kotlin.stdlibJvm
     api Dep.Test.archCore
     api Dep.Kotlin.coroutines
 
