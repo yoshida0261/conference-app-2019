@@ -2,6 +2,7 @@ package io.github.droidkaigi.confsched2019.ext.android
 
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.newSingleThreadContext
 import kotlin.coroutines.CoroutineContext
 
 object CoroutinePlugin {
@@ -25,9 +26,19 @@ object CoroutinePlugin {
     @set:VisibleForTesting
     var mainDispatcherHandler: ((CoroutineContext) -> CoroutineContext)? = null
 
+    private val defaultActionDispatcherCoroutineContext: CoroutineContext =
+        newSingleThreadContext("ActionDispatcherCoroutineContext")
+    val actionDispatcherCoroutineContext: CoroutineContext
+        get() = actionDispatcherCoroutineContextHandler?.invoke(
+            defaultActionDispatcherCoroutineContext
+        ) ?: defaultActionDispatcherCoroutineContext
+    @set:VisibleForTesting
+    var actionDispatcherCoroutineContextHandler: ((CoroutineContext) -> CoroutineContext)? = null
+
     @VisibleForTesting @JvmStatic fun reset() {
         ioDispatcherHandler = null
         computationDispatcherHandler = null
         mainDispatcherHandler = null
+        actionDispatcherCoroutineContextHandler = null
     }
 }
