@@ -1,28 +1,24 @@
 package io.github.droidkaigi.confsched2019.dispatcher
 
 import io.github.droidkaigi.confsched2019.action.Action
-import io.github.droidkaigi.confsched2019.ext.android.CoroutinePlugin
+import io.github.droidkaigi.confsched2019.ext.android.Dispatchers
 import io.github.droidkaigi.confsched2019.model.SessionContents
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.first
 import kotlinx.coroutines.channels.map
 import kotlinx.coroutines.channels.take
 import kotlinx.coroutines.channels.toList
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.hasItems
 import org.hamcrest.core.Is.`is`
 import org.junit.Assert.assertThat
-import org.junit.Before
 import org.junit.Test
 
 class DispatcherTest {
-    @Before fun setUp() {
-        val pseudoMainDispatcher = newSingleThreadContext("DispatcherTest")
-        CoroutinePlugin.mainDispatcherHandler = { pseudoMainDispatcher }
-    }
-
     @Test fun sendAndReceive() {
         val sessionContents: SessionContents = mockk()
         val dispatcher = Dispatcher()
@@ -114,6 +110,33 @@ class DispatcherTest {
                 allSessionLoaded2.await().map { it.sessionContents },
                 hasItems(sessionContents1, sessionContents2)
             )
+        }
+    }
+
+    @Test fun checkConcurrecyOfSendAndReceive() {
+        val sessionContents: SessionContents = mockk()
+        val dispatcher = Dispatcher()
+
+        runBlocking {
+            val action = Action.SessionContentsLoaded(sessionContents)
+            val verifier = mockk<(Action.SessionContentsLoaded?) -> Unit>(relaxed = true)
+
+            val job = launch(Dispatchers.Default) {
+                delay(1000L)
+                verifier(dispatcher.subscribe<Action.SessionContentsLoaded>().first())
+            }
+
+            dispatcher.dispatch(action)
+
+            verify(exactly = 0) {
+                verifier(any())
+            }
+
+            job.join()
+
+            verify {
+                verifier(action)
+            }
         }
     }
 }
