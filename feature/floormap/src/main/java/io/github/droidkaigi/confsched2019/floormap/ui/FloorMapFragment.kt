@@ -58,6 +58,7 @@ class FloorMapFragment : DaggerFragment() {
 
                 ScaleSplingAnimation(itemBinding.floorMapImage)
 
+                itemBinding.floorTitle = getPageTitle(position)
                 return itemBinding.root
             }
 
