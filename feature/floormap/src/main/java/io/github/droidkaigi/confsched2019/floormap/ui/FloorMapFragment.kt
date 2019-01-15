@@ -55,6 +55,9 @@ class FloorMapFragment : DaggerFragment() {
                     else -> null
                 }
                 resId?.let { itemBinding.floorMapImage.setImageResource(resId) }
+
+                ScaleSplingAnimation(itemBinding.floorMapImage)
+
                 return itemBinding.root
             }
 

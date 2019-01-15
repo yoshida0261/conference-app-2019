@@ -48,6 +48,6 @@ dependencies {
     androidTestImplementation Dep.Test.testRunner
     androidTestImplementation Dep.Test.espressoCore
 
-    implementation Dep.supp
+    implementation Dep.Support.androidDynamicAnimation
 
 }

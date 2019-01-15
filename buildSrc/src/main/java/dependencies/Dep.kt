@@ -107,8 +107,8 @@ object Dep {
     }
 
     object Support {
-        val version = ""
-        val androidDynamicAnimation = "com.android.support:support-dynamic-animation:${version}"
+        val version = "27.1.0"
+        val androidDynamicAnimation = "com.android.support:support-dynamic-animation:$version"
 
     }
 

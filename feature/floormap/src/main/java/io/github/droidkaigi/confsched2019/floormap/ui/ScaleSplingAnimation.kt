@@ -1,16 +1,15 @@
 package io.github.droidkaigi.confsched2019.floormap.ui
 
-import android.support.animation.DynamicAnimation
-import android.support.animation.SpringAnimation
-import android.support.animation.SpringForce
-import android.view.View
-
+import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import android.widget.ImageView
-import android.widget.TextView
+import androidx.dynamicanimation.animation.DynamicAnimation
+import androidx.dynamicanimation.animation.SpringAnimation
+import androidx.dynamicanimation.animation.SpringForce
+import java.util.Locale
 
-class ScaleSplingAnimation( animateView: ImageView, infoView: TextView ) {
+class ScaleSplingAnimation(animateView: ImageView) {
     private val INITIAL_SCALE = 1f
     private var scaleFactor = 1f
 
@@ -19,10 +18,8 @@ class ScaleSplingAnimation( animateView: ImageView, infoView: TextView ) {
     private var scaleGestureDetector: ScaleGestureDetector? = null
 
     private val animateView: View?
-    private val infoView: TextView?
 
     init {
-        this.infoView = infoView
         this.animateView = animateView
         // create scaleX and scaleY animations
         scaleXAnimation = createSpringAnimation(
@@ -33,11 +30,36 @@ class ScaleSplingAnimation( animateView: ImageView, infoView: TextView ) {
             animateView, SpringAnimation.SCALE_Y,
             INITIAL_SCALE, SpringForce.STIFFNESS_MEDIUM, SpringForce.DAMPING_RATIO_HIGH_BOUNCY
         )
-        updateInfoView()
         setupPinchToZoom()
-        this.animateView.setOnTouchListener(touchListener)
-        scaleXAnimation.addUpdateListener(updateListener)
+        this.animateView.setOnTouchListener(this.touchListener)
+      //  scaleXAnimation.addUpdateListener(updateListener)
     }
+
+    private val touchListener = View.OnTouchListener { v, event ->
+        if (event.action == MotionEvent.ACTION_UP) {
+            scaleXAnimation.start()
+            scaleYAnimation.start()
+        } else {
+            scaleXAnimation.cancel()
+            scaleYAnimation.cancel()
+            scaleGestureDetector!!.onTouchEvent(event)
+        }
+        true
+    }
+
+    private fun setupPinchToZoom() {
+        scaleGestureDetector = ScaleGestureDetector(animateView!!.getContext(),
+            object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                override fun onScale(detector: ScaleGestureDetector): Boolean {
+                    scaleFactor *= detector.scaleFactor
+                    animateView!!.scaleX = animateView.scaleX * scaleFactor
+                    animateView!!.scaleY = animateView.scaleY * scaleFactor
+                    return true
+                }
+            }
+        )
+    }
+
 
     fun createSpringAnimation(
         view: View,
