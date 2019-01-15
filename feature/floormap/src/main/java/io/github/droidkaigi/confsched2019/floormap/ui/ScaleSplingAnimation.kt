@@ -7,7 +7,6 @@ import android.widget.ImageView
 import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
-import java.util.Locale
 
 class ScaleSplingAnimation(animateView: ImageView) {
     private val INITIAL_SCALE = 1f
@@ -31,20 +30,18 @@ class ScaleSplingAnimation(animateView: ImageView) {
             INITIAL_SCALE, SpringForce.STIFFNESS_MEDIUM, SpringForce.DAMPING_RATIO_HIGH_BOUNCY
         )
         setupPinchToZoom()
-        this.animateView.setOnTouchListener(this.touchListener)
+        this.animateView.setOnTouchListener(View.OnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                scaleXAnimation.start()
+                scaleYAnimation.start()
+            } else {
+                scaleXAnimation.cancel()
+                scaleYAnimation.cancel()
+                scaleGestureDetector!!.onTouchEvent(event)
+            }
+            true
+        })
       //  scaleXAnimation.addUpdateListener(updateListener)
-    }
-
-    private val touchListener = View.OnTouchListener { v, event ->
-        if (event.action == MotionEvent.ACTION_UP) {
-            scaleXAnimation.start()
-            scaleYAnimation.start()
-        } else {
-            scaleXAnimation.cancel()
-            scaleYAnimation.cancel()
-            scaleGestureDetector!!.onTouchEvent(event)
-        }
-        true
     }
 
     private fun setupPinchToZoom() {
@@ -52,8 +49,8 @@ class ScaleSplingAnimation(animateView: ImageView) {
             object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
                 override fun onScale(detector: ScaleGestureDetector): Boolean {
                     scaleFactor *= detector.scaleFactor
-                    animateView!!.scaleX = animateView.scaleX * scaleFactor
-                    animateView!!.scaleY = animateView.scaleY * scaleFactor
+                    animateView.scaleX = animateView.scaleX * scaleFactor
+                    animateView.scaleY = animateView.scaleY * scaleFactor
                     return true
                 }
             }
