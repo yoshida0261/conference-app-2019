@@ -106,6 +106,12 @@ object Dep {
         val assistedInjectProcessor = "com.squareup.inject:assisted-inject-processor-dagger2:0.3.0"
     }
 
+    object Support {
+        val version = ""
+        val androidDynamicAnimation = "com.android.support:support-dynamic-animation:${version}"
+
+    }
+
     object Ktor {
         val version = "1.1.1"
         val clientCommon = "io.ktor:ktor-client-core:$version"
